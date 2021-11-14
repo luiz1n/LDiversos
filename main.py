@@ -26,6 +26,7 @@ PREFIXO = ":"
 
 INICIADO = False
 EVENTO = "?"
+EVENTOS = ['Vogais', 'Gerundios', 'Consoantes', 'Verbos']
 
 extension_info  = {
     "title": "LDiversos",
@@ -46,7 +47,8 @@ headers = {
         },
         "Incoming": {
             "RoomUserTalk": "Chat",
-            "RoomUsers": "Users"
+            "RoomUsers": "Users",
+            "Alert": "MOTDNotification"
         }
     },
 
@@ -56,7 +58,8 @@ headers = {
         },
         "Incoming": {
             "RoomUserTalk": 1446,
-            "RoomUsers": 374
+            "RoomUsers": 374,
+            "Alert": 2035
         }
     }
 }
@@ -69,6 +72,17 @@ def enviar_aviso (aviso):
 
 def enviar_mensagem (mensagem, bubble):
     extension.send_to_server(HPacket(pegar_header("RoomUserTalk", True), mensagem, bubble, 0))
+
+def help():
+    lista_eventos = ''
+    for evento in EVENTOS:
+        lista_eventos += f'{evento}\n'
+    lista_eventos = f'''
+{lista_eventos}
+    
+Exemplo => {PREFIXO}iniciar vogais
+    '''
+    extension.send_to_client(HPacket(pegar_header("Alert"), 1, lista_eventos))
 
 def parar():
     global INICIADO
@@ -117,9 +131,13 @@ def interceptar_fala( message ):
         if comando == "parar":
             if INICIADO:
                 parar()
+                enviar_aviso("Script parado.")
             else:
                 enviar_aviso("O Script já está parado.")
             return
+
+        if comando == "lista":
+            help()
 
         if comando.startswith('iniciar '):
             evento = comando.replace('iniciar ', '')     
