@@ -5,12 +5,14 @@ from g_python.hpacket import HPacket
 from classes.vogais import Vogais
 from classes.consoantes import Consoantes
 from classes.gerundios import Gerundios
+from classes.verbos import Verbos
 
 import json
 
 vogais = Vogais()
 consoantes = Consoantes()
 gerundios = Gerundios()
+verbos = Verbos()
 
 def pegar( chave ):
     carregar = json.loads(open('configuracao.json', 'r').read())
@@ -84,7 +86,7 @@ def interceptar_fala( message ):
 
     if not message_.startswith(PREFIXO):
         message.is_blocked = False
-
+        
         if INICIADO:
             message.is_blocked = True
             if EVENTO == 'Vogais':
@@ -98,6 +100,10 @@ def interceptar_fala( message ):
             elif EVENTO == 'Gerundios':
                 g = gerundios.gerundios(message_)
                 enviar_mensagem(g, bubble)
+            
+            elif EVENTO == "Verbos":
+                v = verbos.verbos(message_)
+                enviar_mensagem(v, bubble)
 
 
     if message_.startswith(PREFIXO):
@@ -109,7 +115,10 @@ def interceptar_fala( message ):
             return
 
         if comando == "parar":
-            parar()
+            if INICIADO:
+                parar()
+            else:
+                enviar_aviso("O Script já está parado.")
             return
 
         if comando.startswith('iniciar '):
@@ -126,6 +135,14 @@ def interceptar_fala( message ):
             elif evento == "gerundios":
                 EVENTO = "Gerundios"
                 INICIADO = True
+            
+            elif evento == "verbos":
+                EVENTO = "Verbos"
+                INICIADO = True
+            
+            else:
+                enviar_aviso("Evento não reconhecido. Use :lista para ter a lista de eventos disponíveis.")
+                return
 
             enviar_aviso(f"Script iniciado com o evento: {EVENTO}")
 
