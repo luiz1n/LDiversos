@@ -1,0 +1,2 @@
+# LDiversos
+ Scripts para diversos
