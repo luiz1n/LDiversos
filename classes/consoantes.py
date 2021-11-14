@@ -5,6 +5,7 @@ class Consoantes:
     
     def consoantes( self, palavra ):
         palavra_com_consoantes = ""
+        p = str(palavra)
         for caractere in palavra:
             if ( caractere == 'b' or (
                 caractere == 'c'

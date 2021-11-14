@@ -1,4 +1,5 @@
 {
     "HEADERS_CUSTOMIZAVEIS": "nao",
-    "INSTALAR": "g_python,unidecode"
+    "INSTALAR": "g_python",
+    "PREFIXO": ":"
 }

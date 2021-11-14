@@ -7,7 +7,7 @@ from classes.consoantes import Consoantes
 from classes.gerundios import Gerundios
 from classes.verbos import Verbos
 
-import json
+import json, os
 
 vogais = Vogais()
 consoantes = Consoantes()
@@ -19,11 +19,27 @@ def pegar( chave ):
     valor = carregar[str(chave).upper()]
     return valor
 
-HEADERS_CUSTOMIZAVEIS = pegar('headers_customizaveis')
-HEADERS_CUSTOMIZAVEIS = True if HEADERS_CUSTOMIZAVEIS.lower() == "sim" else False
-AUTHOR = "Luiz1n"
-PREFIXO = ":"
+def instalar():
+    r = pegar("instalar")
+    if str(r).__contains__(","):
+        for r_ in str(r).split(','):
+            try:
+                __import__(r_)
+            except:
+                os.system(f"pip install {r_}")
+    else:
+        try:
+            __import__(r)
+        except:
+            os.system(f'pip install {r}')
 
+instalar()
+
+HEADERS_CUSTOMIZAVEIS = pegar('headers_customizaveis')
+PREFIXO = pegar("prefixo")
+HEADERS_CUSTOMIZAVEIS = True if HEADERS_CUSTOMIZAVEIS.lower() == "sim" else False
+
+AUTHOR = "Luiz1n"
 INICIADO = False
 EVENTO = "?"
 EVENTOS = ['Vogais', 'Gerundios', 'Consoantes', 'Verbos']
@@ -72,6 +88,7 @@ def enviar_aviso (aviso):
 
 def enviar_mensagem (mensagem, bubble):
     extension.send_to_server(HPacket(pegar_header("RoomUserTalk", True), mensagem, bubble, 0))
+                
 
 def help():
     lista_eventos = ''
