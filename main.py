@@ -1,13 +1,16 @@
 from g_python.gextension import Extension
 from g_python.hdirection import Direction
 from g_python.hpacket import HPacket
-from g_python.hparsers import HEntity, HEntityType
 
 from classes.vogais import Vogais
+from classes.consoantes import Consoantes
+from classes.gerundios import Gerundios
+
 import json
 
 vogais = Vogais()
-
+consoantes = Consoantes()
+gerundios = Gerundios()
 
 def pegar( chave ):
     carregar = json.loads(open('configuracao.json', 'r').read())
@@ -19,8 +22,8 @@ HEADERS_CUSTOMIZAVEIS = True if HEADERS_CUSTOMIZAVEIS.lower() == "sim" else Fals
 AUTHOR = "Luiz1n"
 PREFIXO = ":"
 
-USERS = {}
 INICIADO = False
+EVENTO = "?"
 
 extension_info  = {
     "title": "LDiversos",
@@ -62,37 +65,69 @@ def pegar_header( name, outgoing = False ):
 def enviar_aviso (aviso):
     extension.send_to_client(HPacket(pegar_header("RoomUserTalk"), 0, f'LDiversos ~ {aviso}', 0, 34, 0, -1))
 
-def enviar_mensagem (mensagem):
-    extension.send_to_server(HPacket(pegar_header("RoomUserTalk", True), mensagem, 1, 0))
+def enviar_mensagem (mensagem, bubble):
+    extension.send_to_server(HPacket(pegar_header("RoomUserTalk", True), mensagem, bubble, 0))
 
-def pegar_usuarios( message ):
-    packet = message.packet
-    for user in HEntity.parse(packet):
-        if user.name not in USERS:
-            USERS[user.name] = user.index
+def parar():
+    global INICIADO
+    if INICIADO:
+        INICIADO = False
 
 def interceptar_fala( message ):
+
+    global INICIADO, EVENTO
+
     packet = message.packet
-    (index, message_, _, bubble, _, _,) = packet.read('isiiii')
+    (message_, bubble, _,) = packet.read('sii')
     message.is_blocked = True
     message_ = str(message_).lower()
 
     if not message_.startswith(PREFIXO):
         message.is_blocked = False
-        return
-    
+
+        if INICIADO:
+            message.is_blocked = True
+            if EVENTO == 'Vogais':
+                v = vogais.vogais(message_)
+                enviar_mensagem(v, bubble)
+
+            elif EVENTO == 'Consoantes':
+                c = consoantes.consoantes(message_)
+                enviar_mensagem(c, bubble)
+
+            elif EVENTO == 'Gerundios':
+                g = gerundios.gerundios(message_)
+                enviar_mensagem(g, bubble)
+
+
     if message_.startswith(PREFIXO):
         comando = message_.replace(PREFIXO, "")
 
         if comando == "iniciar":
+            parar()
             enviar_aviso("Informe um evento. Use :lista para obter a lista de eventos.")
             return
 
+        if comando == "parar":
+            parar()
+            return
+
         if comando.startswith('iniciar '):
-            evento = comando.replace('iniciar ', '')        
+            evento = comando.replace('iniciar ', '')     
+
             if evento == "vogais":
-                vogais.vogais()
+                EVENTO = "Vogais"
+                INICIADO = True
+
+            elif evento == "consoantes":
+                EVENTO = "Consoantes"
+                INICIADO = True
+
+            elif evento == "gerundios":
+                EVENTO = "Gerundios"
+                INICIADO = True
+
+            enviar_aviso(f"Script iniciado com o evento: {EVENTO}")
 
 
-extension.intercept( Direction.TO_CLIENT, pegar_usuarios, pegar_header('RoomUsers') )
-extension.intercept( Direction.TO_CLIENT, interceptar_fala, pegar_header('RoomUserTalk') )
+extension.intercept( Direction.TO_SERVER, interceptar_fala, pegar_header('RoomUserTalk', True))
