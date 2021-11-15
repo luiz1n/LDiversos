@@ -25,6 +25,7 @@ class Consoantes:
                 or caractere == 't'
                 or caractere == 'v'
                 or caractere == 'w'
+                or caractere == 'x'
                 or caractere == 'y'
                 or caractere == 'z'
             ) ):
