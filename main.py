@@ -2,6 +2,8 @@ from g_python.gextension import Extension
 from g_python.hdirection import Direction
 from g_python.hpacket import HPacket
 
+from classes.redigitando import Redigitando
+from classes.soletrando import Soletrando
 from classes.vogais import Vogais
 from classes.consoantes import Consoantes
 from classes.gerundios import Gerundios
@@ -13,6 +15,8 @@ vogais = Vogais()
 consoantes = Consoantes()
 gerundios = Gerundios()
 verbos = Verbos()
+soletrando = Soletrando()
+redigitando = Redigitando()
 
 def pegar( chave ):
     carregar = json.loads(open('configuracao.json', 'r').read())
@@ -42,7 +46,7 @@ HEADERS_CUSTOMIZAVEIS = True if HEADERS_CUSTOMIZAVEIS.lower() == "sim" else Fals
 AUTHOR = "Luiz1n"
 INICIADO = False
 EVENTO = "?"
-EVENTOS = ['Vogais', 'Gerundios', 'Consoantes', 'Verbos']
+EVENTOS = ['Vogais', 'Gerundios', 'Consoantes', 'Verbos', 'Redigitando', 'Soletrando']
 
 extension_info  = {
     "title": "LDiversos",
@@ -135,6 +139,14 @@ def interceptar_fala( message ):
             elif EVENTO == "Verbos":
                 v = verbos.verbos(message_)
                 enviar_mensagem(v, bubble)
+            
+            elif EVENTO == "Soletrando":
+                s = soletrando.soletrar(message_)
+                enviar_mensagem(s, bubble)
+            
+            elif EVENTO == "Redigitando":
+                r = redigitando.redigitar(message_)
+                enviar_mensagem(r, bubble)
 
 
     if message_.startswith(PREFIXO):
@@ -173,6 +185,14 @@ def interceptar_fala( message ):
             
             elif evento == "verbos":
                 EVENTO = "Verbos"
+                INICIADO = True
+
+            elif evento == "redigitando":
+                EVENTO = "Redigitando"
+                INICIADO = True
+            
+            elif evento == "soletrando":
+                EVENTO = "Soletrando"
                 INICIADO = True
             
             else:

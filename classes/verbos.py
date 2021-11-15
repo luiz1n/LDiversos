@@ -28,6 +28,7 @@ class Verbos:
         self.z_verbos = ['zerar', 'zangar', 'zingar', 'zipar', 'zuir', 'zular', 'zelar']
 
     def sort_verbos(self, letra):
+        
         if letra == 'a':
             return random.choice(self.a_verbos)
         elif letra == 'b':
@@ -74,6 +75,7 @@ class Verbos:
             return random.choice(self.v_verbos)
         elif letra == 'z':
             return random.choice(self.z_verbos)
+
     def verbos(self, letra):
         letra = str(letra)
         if letra.__contains__(' '):
